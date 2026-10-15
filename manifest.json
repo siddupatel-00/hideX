@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "hideX",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Hide Likes, Replies, Reposts, Quotes & Views, and blur username, badge, avatar & timestamp for a bias-free X/Twitter feed. 100% local, zero network.",
   "minimum_chrome_version": "105",
   "permissions": ["storage"],

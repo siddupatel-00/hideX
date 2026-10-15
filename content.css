@@ -66,6 +66,43 @@ body.ubx-hide-detail div:has(> a[href$="/quotes"]) {
   display: none !important;
 }
 
+/* ============ NOTIFICATIONS / CELLS / SIDEBAR (non-article rows) ============ */
+/* The Notifications page, Who-to-follow, etc. are NOT article[data-testid="tweet"].
+   X wraps every timeline row in div[data-testid="cellInnerDiv"]; user rows use div[data-testid="UserCell"]. */
+
+/* Avatars outside articles (notification rows, Who-to-follow) */
+body.ubx-blur-avatar div[data-testid="cellInnerDiv"] img[src*="profile_images"],
+body.ubx-blur-avatar div[data-testid="cellInnerDiv"] img[src*="pbs.twimg.com/profile"],
+body.ubx-blur-avatar div[data-testid="UserCell"] img[src*="profile_images"],
+body.ubx-blur-avatar div[data-testid="UserCell"] img[src*="pbs.twimg.com/profile"] {
+  filter: blur(var(--ubx-blur, 8px)) !important;
+  transition: filter 0.15s ease;
+}
+body.ubx-hover-reveal.ubx-blur-avatar div[data-testid="cellInnerDiv"] img:hover,
+body.ubx-hover-reveal.ubx-blur-avatar div[data-testid="UserCell"] img:hover {
+  filter: blur(0) !important;
+}
+
+/* JS-applied blur for notification actor links / plain-text timestamps / badges.
+   content.js adds these classes — CSS :has() cannot express "profile link NOT inside tweet body". */
+body.ubx-blur-username .ubx-js-blur-u,
+body.ubx-blur-time .ubx-js-blur-t,
+body.ubx-blur-avatar .ubx-js-blur-a {
+  filter: blur(var(--ubx-blur, 8px)) !important;
+  user-select: none;
+  transition: filter 0.15s ease;
+}
+body.ubx-blur-badge .ubx-js-blur-b {
+  filter: blur(var(--ubx-blur, 6px)) !important;
+  transition: filter 0.15s ease;
+}
+body.ubx-hover-reveal .ubx-js-blur-u:hover,
+body.ubx-hover-reveal .ubx-js-blur-t:hover,
+body.ubx-hover-reveal .ubx-js-blur-a:hover,
+body.ubx-hover-reveal .ubx-js-blur-b:hover {
+  filter: blur(0) !important;
+}
+
 /* ============ BLUR IDENTITY / BIAS ============ */
 
 /* Avatar — cover testid renames too */

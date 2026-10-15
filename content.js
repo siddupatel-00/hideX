@@ -36,6 +36,20 @@
 
   const BOOL_KEYS = CLASS_MAP.map(([k]) => k).concat(['enabled']);
 
+  // Notification rows are NOT articles: "Aavieeee liked your reply · 16m",
+  // "Replying to @handle", Who-to-follow cells. Targeted via cell wrappers.
+  const PROFILE_HREF = /^\/[A-Za-z0-9_]{1,15}\/?(?:\?.*)?$/;
+  const RESERVED = new Set(['home', 'explore', 'notifications', 'messages', 'bookmarks', 'lists', 'communities', 'premium', 'verified', 'settings', 'search', 'login', 'signup', 'i', 'about', 'tos', 'privacy', 'jobs', 'download', 'compose', 'hashtag']);
+  const NOTIF_HINT = /liked your|followed you|replying to|reposted|mentioned you|quoted your|subscribed|started following/i;
+  const TIME_TEXT = /^[·•\-]?\s*\d+\s*[smhd]\s*$/;
+  const DATE_TEXT = /^[A-Z][a-z]{2}\s+\d{1,2}$/;
+
+  function isProfileHref(href) {
+    if (!href || !PROFILE_HREF.test(href)) return false;
+    const seg = href.slice(1).split('?')[0].replace(/\/$/, '').toLowerCase();
+    return seg.length > 0 && !RESERVED.has(seg);
+  }
+
   let settings = { ...DEFAULTS };
 
   function sanitize(stored) {
@@ -76,7 +90,11 @@
         // keep html/body in sync (CSS gates on body, html is backup)
       } catch (_) { /* never break X */ }
     }
+    // clear stale JS blur first (a toggled-off setting must unblur immediately),
+    // then re-sweep with current settings
+    clearJsBlur();
     sweepDetail(document);
+    sweepIdentity(document);
   }
 
   function hideOne(el) {
@@ -111,6 +129,66 @@
           if (/\/status\//.test(href) || /like|repost|quote|bookmark/i.test(txt)) hideOne(a);
         });
       }
+    } catch (_) { /* never break X */ }
+  }
+
+  // Identity sweep for NON-article rows: notification cells ("X liked your
+  // reply · 16m"), "Replying to @handle" links, Who-to-follow (UserCell).
+  // Only blurs profile links OUTSIDE tweet body text — mentions/hashtags/URLs
+  // inside [data-testid="tweetText"] are never touched.
+  function sweepIdentity(root) {
+    try {
+      const scope = root && root.querySelectorAll ? root : document;
+      if (!settings.enabled) {
+        if (scope === document) clearJsBlur();
+        return;
+      }
+      const cells = [];
+      const pushCells = (el) => {
+        if (el.matches && el.matches('div[data-testid="cellInnerDiv"], div[data-testid="UserCell"]')) cells.push(el);
+        el.querySelectorAll('div[data-testid="cellInnerDiv"], div[data-testid="UserCell"]').forEach((c) => cells.push(c));
+      };
+      if (scope === document) pushCells(document);
+      else if (scope.nodeType === 1) pushCells(scope);
+      else return;
+      for (const cell of cells) {
+        if (settings.blurAvatar) {
+          cell.querySelectorAll('img[src*="profile_images"], img[src*="pbs.twimg.com/profile"]').forEach((img) => img.classList.add('ubx-js-blur-a'));
+        }
+        if (settings.blurUsername) {
+          cell.querySelectorAll('a[href^="/"]').forEach((a) => {
+            if (a.closest('[data-testid="tweetText"]')) return;
+            if (isProfileHref(a.getAttribute ? a.getAttribute('href') : null)) a.classList.add('ubx-js-blur-u');
+          });
+        }
+        if (settings.blurBadge) {
+          cell.querySelectorAll('svg[aria-label*="Verified"], svg[aria-label*="Premium"], [data-testid*="verifi"]').forEach((s) => {
+            if (s.closest && s.closest('[data-testid="tweetText"]')) return;
+            s.classList.add('ubx-js-blur-b');
+          });
+        }
+        if (settings.blurTime) {
+          cell.querySelectorAll('time').forEach((t) => t.classList.add('ubx-js-blur-t'));
+          // notification rows render "· 16m" as plain text (no <time>) — only scan
+          // cells that look like notifications to avoid touching tweet content
+          if (NOTIF_HINT.test(cell.textContent || '')) {
+            cell.querySelectorAll('span').forEach((sp) => {
+              if (sp.closest('[data-testid="tweetText"]')) return;
+              const t = (sp.textContent || '').trim();
+              if (t.length > 12) return;
+              if (TIME_TEXT.test(t) || DATE_TEXT.test(t)) sp.classList.add('ubx-js-blur-t');
+            });
+          }
+        }
+      }
+    } catch (_) { /* never break X */ }
+  }
+
+  function clearJsBlur() {
+    try {
+      document.querySelectorAll('.ubx-js-blur-u, .ubx-js-blur-t, .ubx-js-blur-a, .ubx-js-blur-b').forEach((el) => {
+        el.classList.remove('ubx-js-blur-u', 'ubx-js-blur-t', 'ubx-js-blur-a', 'ubx-js-blur-b');
+      });
     } catch (_) { /* never break X */ }
   }
 
@@ -152,7 +230,7 @@
         if (m.type === 'childList' && m.addedNodes && m.addedNodes.length) {
           // only sweep added subtrees (fast), not whole document
           for (const n of m.addedNodes) {
-            if (n && n.nodeType === 1) sweepDetail(n);
+            if (n && n.nodeType === 1) { sweepDetail(n); sweepIdentity(n); }
           }
         }
       }
