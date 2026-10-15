@@ -1,0 +1,137 @@
+/* hideX — content.css
+   Gated behind body.ubx-* classes set by content.js (optimistically on at document_start).
+   Scoped to tweets so nav / sidebar stay intact. No remote resources. CSS-only = no FOUC after classes set.
+*/
+
+/* ============ HIDE ENGAGEMENT COUNTS (keep icons clickable) ============ */
+/* NOTE: X swaps testids when active: like<->unlike, retweet<->unretweet. Cover both — this was the main "sometimes appearing" bug. */
+
+/* Likes count */
+body.ubx-hide-likes article[data-testid="tweet"] div[data-testid="like"] span,
+body.ubx-hide-likes article[data-testid="tweet"] div[data-testid="unlike"] span,
+body.ubx-hide-likes article[data-testid="tweet"] button[data-testid="like"] span,
+body.ubx-hide-likes article[data-testid="tweet"] button[data-testid="unlike"] span,
+body.ubx-hide-likes article[data-testid="tweet"] [data-testid="like"] span,
+body.ubx-hide-likes article[data-testid="tweet"] [data-testid="unlike"] span {
+  display: none !important;
+}
+
+/* Replies / Comments count */
+body.ubx-hide-replies article[data-testid="tweet"] div[data-testid="reply"] span,
+body.ubx-hide-replies article[data-testid="tweet"] button[data-testid="reply"] span,
+body.ubx-hide-replies article[data-testid="tweet"] [data-testid="reply"] span {
+  display: none !important;
+}
+
+/* Repost + Quote count (same button shows combined total) */
+body.ubx-hide-reposts article[data-testid="tweet"] div[data-testid="retweet"] span,
+body.ubx-hide-reposts article[data-testid="tweet"] div[data-testid="unretweet"] span,
+body.ubx-hide-reposts article[data-testid="tweet"] button[data-testid="retweet"] span,
+body.ubx-hide-reposts article[data-testid="tweet"] button[data-testid="unretweet"] span,
+body.ubx-hide-reposts article[data-testid="tweet"] [data-testid="retweet"] span,
+body.ubx-hide-reposts article[data-testid="tweet"] [data-testid="unretweet"] span {
+  display: none !important;
+}
+
+/* Views / Impressions — hide whole link (icon is info-only, no action) */
+body.ubx-hide-views article[data-testid="tweet"] a[href*="/analytics"],
+body.ubx-hide-views article[data-testid="tweet"] a[href*="/views"],
+body.ubx-hide-views article[data-testid="tweet"] a[href*="/i/views"] {
+  display: none !important;
+}
+
+/* Expanded tweet detail page metrics bar */
+body.ubx-hide-likes a[href$="/likes"],
+body.ubx-hide-likes a[href*="/status/"][href*="/likes"] {
+  display: none !important;
+}
+body.ubx-hide-reposts a[href$="/retweets"],
+body.ubx-hide-reposts a[href$="/quotes"],
+body.ubx-hide-reposts a[href*="/status/"][href*="/retweets"],
+body.ubx-hide-reposts a[href*="/status/"][href*="/quotes"] {
+  display: none !important;
+}
+body.ubx-hide-views a[href*="/analytics"] {
+  display: none !important;
+}
+body.ubx-hide-detail div[data-testid="tweetText"] + div:has(a[href*="/likes"]),
+body.ubx-hide-detail div:has(> a[href$="/likes"]),
+body.ubx-hide-detail div:has(> a[href$="/retweets"]),
+body.ubx-hide-detail div:has(> a[href$="/quotes"]) {
+  display: none !important;
+}
+
+/* JS fallback hook (content.js adds this when selectors shift) */
+.ubx-js-hidden {
+  display: none !important;
+}
+
+/* ============ BLUR IDENTITY / BIAS ============ */
+
+/* Avatar — cover testid renames too */
+body.ubx-blur-avatar article[data-testid="tweet"] div[data-testid="Tweet-User-Avatar"],
+body.ubx-blur-avatar article[data-testid="tweet"] div[data-testid*="User-Avatar"],
+body.ubx-blur-avatar article[data-testid="tweet"] div[data-testid*="Avatar"] img,
+body.ubx-blur-avatar article[data-testid="tweet"] a[href^="/"] img[src*="profile_images"],
+body.ubx-blur-avatar article[data-testid="tweet"] a[href^="/"] img[src*="pbs.twimg.com/profile"] {
+  filter: blur(var(--ubx-blur, 8px)) !important;
+  transition: filter 0.15s ease;
+}
+body.ubx-hover-reveal.ubx-blur-avatar article[data-testid="tweet"] div[data-testid*="Avatar"]:hover,
+body.ubx-hover-reveal.ubx-blur-avatar article[data-testid="tweet"] div[data-testid*="Avatar"]:hover img {
+  filter: blur(0) !important;
+}
+
+/* Display name + @handle (everything in User-Name except time link). *= catches User-Name renames. */
+body.ubx-blur-username article[data-testid="tweet"] div[data-testid*="User-Name"] a:not(:has(time)),
+body.ubx-blur-username article[data-testid="tweet"] div[data-testid*="User-Names"] a:not(:has(time)) {
+  filter: blur(var(--ubx-blur, 8px)) !important;
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.15s ease;
+}
+body.ubx-hover-reveal.ubx-blur-username article[data-testid="tweet"] div[data-testid*="User-Name"] a:not(:has(time)):hover {
+  filter: blur(0) !important;
+  pointer-events: auto;
+}
+
+/* Verified / badge SVG */
+body.ubx-blur-badge article[data-testid="tweet"] div[data-testid*="User-Name"] svg,
+body.ubx-blur-badge article[data-testid="tweet"] svg[aria-label*="Verified"],
+body.ubx-blur-badge article[data-testid="tweet"] svg[aria-label*="Premium"],
+body.ubx-blur-badge article[data-testid="tweet"] svg[aria-label*="vip"],
+body.ubx-blur-badge article[data-testid="tweet"] [data-testid="verificationBadge"],
+body.ubx-blur-badge article[data-testid="tweet"] [data-testid*="verification"] {
+  filter: blur(var(--ubx-blur, 6px)) !important;
+  transition: filter 0.15s ease;
+}
+body.ubx-hover-reveal.ubx-blur-badge article[data-testid="tweet"] div[data-testid*="User-Name"] svg:hover {
+  filter: blur(0) !important;
+}
+
+/* Timestamp */
+body.ubx-blur-time article[data-testid="tweet"] div[data-testid*="User-Name"] a:has(time),
+body.ubx-blur-time article[data-testid="tweet"] div[data-testid*="User-Name"] time,
+body.ubx-blur-time article[data-testid="tweet"] a:has(> time) {
+  filter: blur(var(--ubx-blur, 8px)) !important;
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.15s ease;
+}
+body.ubx-hover-reveal.ubx-blur-time article[data-testid="tweet"] div[data-testid*="User-Name"] a:has(time):hover {
+  filter: blur(0) !important;
+}
+
+/* Master off — must win over everything above.
+   Hiding rules already require body.ubx-hide-*, so they auto-stop when disabled.
+   Only need to reset blur + JS fallback. */
+body.ubx-disabled article[data-testid="tweet"] time,
+body.ubx-disabled article[data-testid="tweet"] svg,
+body.ubx-disabled article[data-testid="tweet"] img,
+body.ubx-disabled article[data-testid="tweet"] a,
+body.ubx-disabled article[data-testid="tweet"] div[data-testid*="User-Name"] a {
+  filter: none !important;
+}
+body.ubx-disabled .ubx-js-hidden {
+  display: revert !important;
+}

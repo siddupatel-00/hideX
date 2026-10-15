@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>hideX</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 300px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #e7e9ea; padding: 16px; }
+  h1 { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  h1 span.eye { background: #1d9bf0; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+  p.sub { font-size: 12px; color: #71767b; margin: 6px 0 12px; line-height: 1.4; }
+  .section { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #71767b; margin: 14px 0 6px; }
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #2f3336; font-size: 13px; }
+  .row small { display: block; color: #71767b; font-size: 11px; margin-top: 2px; }
+  .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 100%; height: 100%; position: absolute; cursor: pointer; margin: 0; z-index: 2; }
+  .track { position: absolute; inset: 0; background: #333639; border-radius: 999px; transition: .2s; }
+  .thumb { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: .2s; }
+  .switch input:checked ~ .track { background: #1d9bf0; }
+  .switch input:checked ~ .thumb { transform: translateX(16px); }
+  .master { background: #16181c; border: 1px solid #2f3336; border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 13px; }
+  .slider-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 13px; }
+  input[type=range] { flex: 1; accent-color: #1d9bf0; }
+  #status { font-size: 11px; color: #1d9bf0; height: 14px; margin-top: 10px; text-align: center; }
+  .footer { margin-top: 6px; font-size: 11px; color: #71767b; text-align: center; }
+</style>
+</head>
+<body>
+  <h1><span class="eye">◉</span> hideX</h1>
+  <p class="sub">Remove engagement bias. Judge posts by quality, not popularity.</p>
+
+  <div class="master">
+    <span>Enable</span>
+    <label class="switch"><input type="checkbox" id="enabled" /><span class="track"></span><span class="thumb"></span></label>
+  </div>
+
+  <div class="section">Hide engagement</div>
+  <div class="row"><div>Likes<small>heart counts</small></div><label class="switch"><input type="checkbox" id="hideLikes" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="row"><div>Comments / Replies<small>reply counts</small></div><label class="switch"><input type="checkbox" id="hideReplies" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="row"><div>Reposts &amp; Quotes<small>retweet counts</small></div><label class="switch"><input type="checkbox" id="hideReposts" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="row"><div>Impressions / Views<small>analytics counts</small></div><label class="switch"><input type="checkbox" id="hideViews" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="row"><div>Detail stats bar<small>expanded tweet page</small></div><label class="switch"><input type="checkbox" id="hideDetail" /><span class="track"></span><span class="thumb"></span></label></div>
+
+  <div class="section">Blur bias</div>
+  <div class="row"><div>Username &amp; handle</div><label class="switch"><input type="checkbox" id="blurUsername" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="row"><div>Verified badge</div><label class="switch"><input type="checkbox" id="blurBadge" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="row"><div>Profile picture</div><label class="switch"><input type="checkbox" id="blurAvatar" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="row"><div>Time of post</div><label class="switch"><input type="checkbox" id="blurTime" /><span class="track"></span><span class="thumb"></span></label></div>
+
+  <div class="section">Experience</div>
+  <div class="row"><div>Hover to reveal<small>unblur on hover</small></div><label class="switch"><input type="checkbox" id="hoverReveal" /><span class="track"></span><span class="thumb"></span></label></div>
+  <div class="slider-row"><span>Blur</span><input type="range" id="blurPx" min="3" max="20" step="1" /><span id="blurVal">8px</span></div>
+
+  <div id="status"></div>
+  <div class="footer">works on x.com &amp; twitter.com</div>
+<script src="popup.js"></script>
+</body>
+</html>
